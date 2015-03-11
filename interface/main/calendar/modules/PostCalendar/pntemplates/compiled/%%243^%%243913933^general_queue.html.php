@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-21 09:06:14
+<?php /* Smarty version 2.6.2, created on 2014-12-01 10:09:09
          compiled from /var/www/openemr/templates/documents/general_queue.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/documents/general_queue.html', 14, false),array('modifier', 'escape', '/var/www/openemr/templates/documents/general_queue.html', 38, false),)), $this); ?>

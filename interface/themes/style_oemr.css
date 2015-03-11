@@ -573,6 +573,8 @@ font-weight: bold;
     margin: 0px 20px 0px 20px;
 }
 #report_custom .issue_title {
+	font-size:  85%;
+	font-style: italic;
 }
 #report_custom .issue_comments {
 }

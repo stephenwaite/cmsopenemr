@@ -1,7 +1,7 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-18 08:07:45
+<?php /* Smarty version 2.6.2, created on 2014-11-17 07:44:59
          compiled from /var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
-smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 65, false),array('function', 'math', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 95, false),array('modifier', 'date_format', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 72, false),array('modifier', 'string_format', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 137, false),array('modifier', 'substr', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 230, false),)), $this); ?>
+smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 29, false),array('function', 'math', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 152, false),array('modifier', 'date_format', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 129, false),array('modifier', 'string_format', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 194, false),array('modifier', 'substr', '/var/www/openemr/interface/forms/vitals/templates/vitals/general_new.html', 287, false),)), $this); ?>
 <html>
 <head>
 <?php html_header_show(); ?>
@@ -26,6 +26,59 @@ var mypcc = '<?php  echo $GLOBALS['phone_country_code']  ?>';
 //  in the interface/patient_file/encounter/trend_form.php page.
 if (typeof jQuery == \'undefined\') {
   document.write("<script type=\'text/javascript\' src=\'';  echo $GLOBALS['webroot'];  echo '/library/js/jquery.js\'><\\/script>")
+}
+
+function vitalsFormSubmitted() {
+	var invalid = "";
+	
+	var elementsToValidate = new Array();
+	
+	elementsToValidate[0] = new Array();
+	elementsToValidate[0][0] = \'weight_input\';
+	elementsToValidate[0][1] = \'';  echo smarty_function_xl(array('t' => 'Weight'), $this); echo '\' + \' (\' + \'';  echo smarty_function_xl(array('t' => 'lbs'), $this); echo '\' + \')\';
+	
+	elementsToValidate[1] = new Array();
+	elementsToValidate[1][0] = \'weight_input_metric\';
+	elementsToValidate[1][1] = \'';  echo smarty_function_xl(array('t' => 'Weight'), $this); echo '\' + \' (\' + \'';  echo smarty_function_xl(array('t' => 'kg'), $this); echo '\' + \')\';
+	
+	elementsToValidate[2] = new Array();
+	elementsToValidate[2][0] = \'height_input\';
+	elementsToValidate[2][1] = \'';  echo smarty_function_xl(array('t' => "Height/Length"), $this); echo '\' + \' (\' + \'';  echo smarty_function_xl(array('t' => 'in'), $this); echo '\' + \')\';
+	
+	elementsToValidate[3] = new Array();
+	elementsToValidate[3][0] = \'height_input_metric\';
+	elementsToValidate[3][1] = \'';  echo smarty_function_xl(array('t' => "Height/Length"), $this); echo '\' + \' (\' + \'';  echo smarty_function_xl(array('t' => 'cm'), $this); echo '\' + \')\';
+
+	elementsToValidate[4] = new Array();
+	elementsToValidate[4][0] = \'bps_input\';
+	elementsToValidate[4][1] = \'';  echo smarty_function_xl(array('t' => 'BP Systolic'), $this); echo '\';
+	
+	elementsToValidate[5] = new Array();
+	elementsToValidate[5][0] = \'bpd_input\';
+	elementsToValidate[5][1] = \'';  echo smarty_function_xl(array('t' => 'BP Diastolic'), $this); echo '\';
+	
+	for (var i = 0; i < elementsToValidate.length; i++) {
+		var current_elem_id = elementsToValidate[i][0];
+		var tag_name = elementsToValidate[i][1];
+		
+		document.getElementById(current_elem_id).classList.remove(\'error\');
+		
+		if (isNaN(document.getElementById(current_elem_id).value)) {
+			invalid += "';  echo smarty_function_xl(array('t' => 'The following field has an invalid value'), $this); echo '" + ": " + tag_name + "\\n";
+			document.getElementById(current_elem_id).className = document.getElementById(current_elem_id).className + " error";
+			document.getElementById(current_elem_id).focus();
+		}
+	}
+	
+	if (invalid.length > 0) {
+		invalid += "\\n" + "';  echo smarty_function_xl(array('t' => "Please correct the value(s) before proceeding!"), $this); echo '";
+		alert(invalid);	
+		
+		return false;
+	} else {
+
+		return top.restoreSession();
+	}
 }
 </script>
 <style type="text/css" title="mystyles" media="all">
@@ -66,6 +119,10 @@ td,th {
 .readonly {
     display:none;
 }
+
+.error {
+  border:2px solid red;
+}
 </style>
 '; ?>
 
@@ -77,7 +134,7 @@ td,th {
 </span></td><td>&nbsp;&nbsp;&nbsp;<a href="../summary/demographics.php" class="readonly css_button_small" onclick="top.restoreSession()"> <span><?php echo smarty_function_xl(array('t' => 'View Patient'), $this);?>
 </span></a></td></tr></table></p>
 <form name="vitals" method="post" action="<?php echo $this->_tpl_vars['FORM_ACTION']; ?>
-/interface/forms/vitals/save.php" onSubmit="return top.restoreSession()">
+/interface/forms/vitals/save.php" onSubmit="return vitalsFormSubmitted()">
 <div id="chart"></div>
 <table>
 	<tr><th align="left"><?php echo smarty_function_xl(array('t' => 'Name'), $this);?>
@@ -131,7 +188,7 @@ td,th {
         <?php endforeach; unset($_from); endif; ?></tr>
 	
 	<?php if ($this->_tpl_vars['units_of_measurement'] == 4): ?><tr class="hide"><?php else: ?><tr><?php endif; ?>
-	        <?php if ($this->_tpl_vars['units_of_measurement'] == 2): ?><td class="unfocus graph" id="height"><?php else: ?><td class="graph" id="height"><?php endif;  echo smarty_function_xl(array('t' => 'Height'), $this);?>
+	        <?php if ($this->_tpl_vars['units_of_measurement'] == 2): ?><td class="unfocus graph" id="height"><?php else: ?><td class="graph" id="height"><?php endif;  echo smarty_function_xl(array('t' => "Height/Length"), $this);?>
 </td>
 		<?php if ($this->_tpl_vars['units_of_measurement'] == 2): ?><td class="unfocus"><?php else: ?><td><?php endif;  echo smarty_function_xl(array('t' => 'in'), $this);?>
 </td>
@@ -145,7 +202,7 @@ td,th {
 	<?php endforeach; unset($_from); endif; ?></tr>
 	
 	<?php if ($this->_tpl_vars['units_of_measurement'] == 3): ?><tr class="hide"><?php else: ?><tr><?php endif; ?>
-                <?php if ($this->_tpl_vars['units_of_measurement'] == 1): ?><td class="unfocus graph" id="height_metric"><?php else: ?><td class="graph" id="height_metric"><?php endif;  echo smarty_function_xl(array('t' => 'Height'), $this);?>
+                <?php if ($this->_tpl_vars['units_of_measurement'] == 1): ?><td class="unfocus graph" id="height_metric"><?php else: ?><td class="graph" id="height_metric"><?php endif;  echo smarty_function_xl(array('t' => "Height/Length"), $this);?>
 </td>
 		<?php if ($this->_tpl_vars['units_of_measurement'] == 1): ?><td class="unfocus"><?php else: ?><td><?php endif;  echo smarty_function_xl(array('t' => 'cm'), $this);?>
 </td>

@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-04-11 14:51:53
+<?php /* Smarty version 2.6.2, created on 2014-11-17 13:36:51
          compiled from /var/www/openemr/interface/forms/prior_auth/templates/prior_auth/general_new.html */ ?>
 <html>
 <head>

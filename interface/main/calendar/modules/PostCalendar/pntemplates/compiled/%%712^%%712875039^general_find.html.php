@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-07-18 14:43:58
+<?php /* Smarty version 2.6.2, created on 2014-12-03 12:13:46
          compiled from /var/www/openemr/templates/patient_finder/general_find.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/patient_finder/general_find.html', 37, false),)), $this); ?>

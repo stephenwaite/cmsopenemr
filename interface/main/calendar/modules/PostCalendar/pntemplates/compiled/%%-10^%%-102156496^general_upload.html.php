@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-18 08:13:11
+<?php /* Smarty version 2.6.2, created on 2014-11-17 08:26:59
          compiled from /var/www/openemr/templates/documents/general_upload.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/documents/general_upload.html', 6, false),)), $this); ?>
@@ -51,6 +51,32 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/
     <p><input type="submit" value="<?php echo smarty_function_xl(array('t' => 'Upload'), $this);?>
 " /></p>
 </div>
+
+<input type="hidden" name="patient_id" value="<?php echo $this->_tpl_vars['patient_id']; ?>
+" />
+<input type="hidden" name="category_id" value="<?php echo $this->_tpl_vars['category_id']; ?>
+" />
+<input type="hidden" name="process" value="<?php echo $this->_tpl_vars['PROCESS']; ?>
+" />
+</form>
+
+<!-- Section for document template download -->
+<form method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
+<input type='hidden' name='patient_id' value='<?php echo $this->_tpl_vars['patient_id']; ?>
+' />
+<p class='text bold'>
+ <?php echo smarty_function_xl(array('t' => 'Download document template for this patient and visit'), $this);?>
+
+</p>
+<p class='text'>
+ <select name='form_filename'><?php echo $this->_tpl_vars['TEMPLATES_LIST']; ?>
+</select> &nbsp;
+ <input type='submit' value='<?php echo smarty_function_xl(array('t' => 'Fetch'), $this);?>
+' />
+</p>
+</form>
+<!-- End document template download section -->
+
 <?php if (! empty ( $this->_tpl_vars['file'] )): ?>
 	<div class="text bold">
 		<br/>
@@ -89,11 +115,3 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/
 <br><br>
 		</div>
 	<?php endforeach; unset($_from); endif;  endif; ?>
-
-<input type="hidden" name="patient_id" value="<?php echo $this->_tpl_vars['patient_id']; ?>
-" />
-<input type="hidden" name="category_id" value="<?php echo $this->_tpl_vars['category_id']; ?>
-" />
-<input type="hidden" name="process" value="<?php echo $this->_tpl_vars['PROCESS']; ?>
-" />
-</form>

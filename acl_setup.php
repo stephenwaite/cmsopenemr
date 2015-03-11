@@ -63,6 +63,8 @@
      // xl('Nation Notes')
  $gacl->add_object_section('Patient Portal','patientportal'  , 10, 0, 'ACO');
      // xl('Patient Portal')
+  $gacl->add_object_section('Menus','menus'  , 10, 0, 'ACO');
+     // xl('Menus')
  // Create Accounting ACOs.
  //
  $gacl->add_object('acct', 'Billing (write optional)'           , 'bill' , 10, 0, 'ACO');
@@ -138,6 +140,11 @@
  $gacl->add_object('patientportal', 'Patient Portal' , 'portal'  , 10, 0, 'ACO');
      // xl('Patient Portal')
      
+ // Create ACOs for modules.
+ //
+ $gacl->add_object('menus', 'Modules' , 'modle'  , 10, 0, 'ACO');
+     // xl('Modules') 
+     
  // Create ACOs for patients.
  //
  $gacl->add_object('patients', 'Appointments (write,wsome optional)'      , 'appt' , 10, 0, 'ACO');
@@ -200,7 +207,7 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
  // If this script is being used by OpenEMR's setup, then will
  //   incorporate the installation values. Otherwise will
 //    hardcode the 'admin' user.
- if ( isset($this->iuser) ) {
+ if (isset($this) && isset($this->iuser)) {
   $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
   $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
  }
@@ -223,7 +230,8 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
    'sensitivities'=>array('normal', 'high'),
    'nationnotes'=>array('nn_configure'),
-   'patientportal'=>array('portal')
+   'patientportal'=>array('portal'),
+   'menus'=>array('modle')
   ),
   NULL, array($admin), NULL, NULL,
   1, 1, 'write', 'Administrators can do anything'
@@ -393,7 +401,8 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
    'sensitivities'=>array('normal', 'high'),
    'nationnotes'=>array('nn_configure'),
-   'patientportal'=>array('portal')
+   'patientportal'=>array('portal'),
+   'menus'=>array('modle')
   ),
   NULL, array($breakglass), NULL, NULL,
   1, 1, 'write', 'Emergency Login user can do anything'

@@ -42,6 +42,7 @@ $datatypes = array(
   "13" => xl("Squads"),
   "14" => xl("Organizations"),
   "15" => xl("Billing codes"),
+  "16" => xl("Insurances"),
   "21" => xl("Checkbox list"),
   "22" => xl("Textbox list"),
   "23" => xl("Exam results"),
@@ -54,7 +55,8 @@ $datatypes = array(
   "32" => xl("Smoking Status"),
   "33" => xl("Race and Ethnicity"),
   "34" => xl("NationNotes"),
-  "35" => xl("Facilities")
+  "35" => xl("Facilities"),
+  "36" => xl("Multiple Select List")
 );
 
 function nextGroupOrder($order) {
@@ -94,6 +96,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "datacols = '"      . formTrim($iter['datacols'])  . "', " .
                 "data_type= '$data_type', "                                .
                 "list_id= '"        . $listval   . "', " .
+                "list_backup_id= '"        . formTrim($iter['list_backup_id'])   . "', " .
                 "edit_options = '"  . formTrim($iter['edit_options']) . "', " .
                 "default_value = '" . formTrim($iter['default'])   . "', " .
                 "description = '"   . formTrim($iter['desc'])      . "' " .
@@ -110,7 +113,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
-      ", max_length, list_id " .
+      ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . formTrim($_POST['layout_id']      ) . "'" .
       ",'" . formTrim($_POST['newid']          ) . "'" .
@@ -128,6 +131,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       ",'" . formTrim($_POST['newdesc']        ) . "'" .
       ",'"    . formTrim($_POST['newmaxSize'])    . "'"                                 .
       ",'" . $listval . "'" .
+      ",'" . formTrim($_POST['newbackuplistid']) . "'" .
       " )");
 
     if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
@@ -212,7 +216,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
-      ", max_length, list_id " .
+      ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . formTrim($_POST['layout_id']      ) . "'" .
       ",'" . formTrim($_POST['gnewid']          ) . "'" .
@@ -230,6 +234,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       ",'" . formTrim($_POST['gnewdesc']        ) . "'" .
       ",'"    . formTrim($_POST['gnewmaxSize'])    . "'"                                  .
       ",'" . $listval       . "'" .
+      ",'" . formTrim($_POST['gnewbackuplistid']        ) . "'" .
       " )");
 
     if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
@@ -442,7 +447,8 @@ function writeFieldLine($linedata) {
       $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
       $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
       $linedata['data_type'] == 27 || $linedata['data_type'] == 32 ||
-      $linedata['data_type'] == 33 || $linedata['data_type'] == 34)
+      $linedata['data_type'] == 33 || $linedata['data_type'] == 34 ||
+      $linedata['data_type'] == 36)
     {
       $type = "";
       $disp = "style='display:none'";
@@ -471,9 +477,26 @@ function writeFieldLine($linedata) {
     }
     echo "</td>\n";
 
+    //Backup List Begin
+    echo "  <td align='center' class='optcell'>";
+    if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
+        $linedata['data_type'] == 33 || $linedata['data_type'] == 36)
+    {
+    
+        echo "<input type='text' name='fld[$fld_line_no][list_backup_id]' value='" .
+    	    htmlspecialchars($linedata['list_backup_id'], ENT_QUOTES) .
+    	    "' size='3' maxlength='10' class='optin listid' style='cursor: pointer' />";
+    }
+    else {
+        echo "<input type='hidden' name='fld[$fld_line_no][list_backup_id]' value=''>";
+    }
+    echo "</td>\n";
+    //Backup List End
+    
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='fld[$fld_line_no][titlecols]' value='" .
          htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' />";
+
     echo "</td>\n";
   
     echo "  <td align='center' class='optcell'>";
@@ -481,10 +504,20 @@ function writeFieldLine($linedata) {
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' title='C = " . xl('Capitalize') .
-      ", D = " . xl('Dup Check') . ", G = " . xl('Graphable') .
-      ", N = " . xl('New Patient Form') . ", O = " . xl('Order Processor') .
-      ", V = " . xl('Vendor') . "'>";
+    echo "  <td align='center' class='optcell' title='" .
+        "C = " . xla('Capitalize') .
+        ", D = " . xla('Dup Check') .
+        ", G = " . xla('Graphable') .
+        ", H = " . xla('Read-only from History') .
+        ", L = " . xla('Lab Order') .
+        ", N = " . xla('New Patient Form') .
+        ", O = " . xla('Order Processor') .
+        ", R = " . xla('Distributor') .
+        ", T = " . xla('Description is default text') .
+        ", U = " . xla('Capitalize all') .
+        ", V = " . xla('Vendor') .
+        ", 1 = " . xla('Write Once') . 
+            "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
          htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' maxlength='36' class='optin' />";
     echo "</td>\n";
@@ -668,6 +701,7 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('Size','e'); ?></th>
   <th><?php xl('Maximum Size','e'); ?></th>
   <th><?php xl('List','e'); ?></th>
+  <th><?php xl('Backup List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
   <th><?php xl('Data Cols','e'); ?></th>
   <th><?php xl('Options','e'); ?></th>
@@ -730,6 +764,7 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('Size','e'); ?></th>
   <th><?php xl('Maximum Size','e'); ?></th>
   <th><?php xl('List','e'); ?></th>
+  <th><?php xl('Backup List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
   <th><?php xl('Data Cols','e'); ?></th>
   <th><?php xl('Options','e'); ?></th>
@@ -772,6 +807,7 @@ foreach ($datatypes as $key=>$value) {
         ?>
     </select>
 </td>
+<td><input type="textbox" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="31" class="listid"></td>
 <td><input type="textbox" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3"> </td>
 <td><input type="textbox" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3"> </td>
 <td><input type="textbox" name="gnewedit_options" id="gnewedit_options" value="" size="3" maxlength="36">
@@ -800,6 +836,7 @@ foreach ($datatypes as $key=>$value) {
    <th><?php xl('Size','e'); ?></th>
    <th><?php xl('Maximum Size','e'); ?></th>
    <th><?php xl('List','e'); ?></th>
+   <th><?php xl('Backup List','e'); ?></th>
    <th><?php xl('Label Cols','e'); ?></th>
    <th><?php xl('Data Cols','e'); ?></th>
    <th><?php xl('Options','e'); ?></th>
@@ -842,6 +879,7 @@ foreach ($datatypes as $key=>$value) {
         ?>
        </select>
    </td>
+   <td><input type="textbox" name="newbackuplistid" id="newbackuplistid" value="" size="8" maxlength="31" class="listid"></td>
    <td><input type="textbox" name="newtitlecols" id="newtitlecols" value="" size="3" maxlength="3"> </td>
    <td><input type="textbox" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3"> </td>
    <td><input type="textbox" name="newedit_options" id="newedit_options" value="" size="3" maxlength="36">
@@ -980,6 +1018,10 @@ $(document).ready(function(){
         // similarly with the listid field
         validid = $("#gnewlistid").val().replace(/(\s|\W)/g, "_");
         $("#gnewlistid").val(validid);
+        // similarly with the backuplistid field
+        validid = $("#gnewbackuplistid").val().replace(/(\s|\W)/g, "_");
+        $("#gnewbackuplistid").val(validid);
+
 
         // submit the form to add a new field to a specific group
         $("#formaction").val("addgroup");
@@ -1127,6 +1169,9 @@ $(document).ready(function(){
         // similarly with the listid field
         validid = $("#newlistid").val().replace(/(\s|\W)/g, "_");
         $("#newlistid").val(validid);
+        // similarly with the backuplistid field
+        validid = $("#newbackuplistid").val().replace(/(\s|\W)/g, "_");
+        $("#newbackuplistid").val(validid);
     
         // submit the form to add a new field to a specific group
         $("#formaction").val("addfield");
@@ -1224,6 +1269,7 @@ function ResetNewFieldValues () {
     $("#newmaxSize").val("");
     $("#newdatatype").val("");
     $("#newlistid").val("");
+    $("#newbackuplistid").val("");
     $("#newtitlecols").val("");
     $("#newdatacols").val("");
     $("#newedit_options").val("");

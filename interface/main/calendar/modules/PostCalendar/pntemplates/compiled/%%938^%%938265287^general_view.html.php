@@ -1,7 +1,7 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-18 11:56:00
+<?php /* Smarty version 2.6.2, created on 2014-11-17 08:04:56
          compiled from /var/www/openemr/templates/documents/general_view.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
-smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/documents/general_view.html', 37, false),array('function', 'user_info', '/var/www/openemr/templates/documents/general_view.html', 194, false),array('modifier', 'escape', '/var/www/openemr/templates/documents/general_view.html', 163, false),)), $this); ?>
+smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/documents/general_view.html', 37, false),array('function', 'user_info', '/var/www/openemr/templates/documents/general_view.html', 247, false),array('modifier', 'escape', '/var/www/openemr/templates/documents/general_view.html', 192, false),)), $this); ?>
 <head>
 <style type="text/css">@import url(library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="library/dialog.js"></script>
@@ -56,6 +56,51 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/
 	<?php echo '}'; ?>
 
  <?php echo '}'; ?>
+
+
+// For tagging it encounter
+function tagUpdate() <?php echo '{'; ?>
+
+	var f = document.forms['document_tag'];
+	if (f.encounter_check.checked) <?php echo '{'; ?>
+
+		if(f.visit_category_id.value==0) <?php echo '{'; ?>
+
+			alert(" <?php echo smarty_function_xl(array('t' => 'Please select visit category'), $this);?>
+" );
+			return false;
+		<?php echo '}'; ?>
+
+	<?php echo '}'; ?>
+ else if (f.encounter_id.value == 0 ) <?php echo '{'; ?>
+
+		alert(" <?php echo smarty_function_xl(array('t' => 'Please select encounter'), $this);?>
+");
+		return false;	
+	<?php echo '}'; ?>
+
+	//top.restoreSession();
+	document.forms['document_tag'].submit();
+<?php echo '}'; ?>
+
+
+// For new or existing encounter
+function set_checkbox() <?php echo '{'; ?>
+
+	var f = document.forms['document_tag'];
+	if (f.encounter_check.checked) <?php echo '{'; ?>
+
+		f.encounter_id.disabled = true;
+		f.visit_category_id.disabled = false;
+	<?php echo '}'; ?>
+ else <?php echo '{'; ?>
+
+		f.encounter_id.disabled = false;
+		f.visit_category_id.disabled = true;
+		f.visit_category_id.value = 0;
+	<?php echo '}'; ?>
+
+<?php echo '}'; ?>
 
 
  // Process click on Import link.
@@ -219,6 +264,37 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/
                 </div>
                 </form>
             </div>
+
+			<br/>
+			
+			<div class="text">
+			   <form method="post" name="document_tag" id="document_tag" action="<?php echo $this->_tpl_vars['TAG_ACTION']; ?>
+" onsubmit="return top.restoreSession()">
+
+				<div >
+				   <div style="float:left">
+					   <b><?php echo smarty_function_xl(array('t' => 'Tag to Encounter'), $this);?>
+</b>&nbsp;
+				   </div>
+
+				   <div style="float:none">
+					   <a href="javascript:;" onclick="tagUpdate();">(<span><?php echo smarty_function_xl(array('t' => 'submit'), $this);?>
+)</span></a>
+				   </div>
+			   </div>
+
+				 <div>
+					<select id="encounter_id"  name="encounter_id"  ><?php echo $this->_tpl_vars['ENC_LIST']; ?>
+</select>&nbsp;
+					<input type="checkbox" name="encounter_check" id="encounter_check"  onclick='set_checkbox(this)'/> <label for="encounter_check"><b><?php echo smarty_function_xl(array('t' => 'Create Encounter'), $this);?>
+</b></label>&nbsp;&nbsp;
+					   <?php echo smarty_function_xl(array('t' => 'Visit Category'), $this);?>
+ : &nbsp;<select id="visit_category_id"  name="visit_category_id"  disabled><?php echo $this->_tpl_vars['VISIT_CATEGORY_LIST']; ?>
+</select>&nbsp; 
+
+			   </div>
+			   </form>
+		   </div>
 
             <br/>
 

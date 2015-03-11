@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-07-22 16:05:30
+<?php /* Smarty version 2.6.2, created on 2014-11-20 20:02:39
          compiled from /var/www/openemr/interface/forms/ros/templates/ros/general_new.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/interface/forms/ros/templates/ros/general_new.html', 77, false),array('function', 'html_radios', '/var/www/openemr/interface/forms/ros/templates/ros/general_new.html', 84, false),)), $this); ?>

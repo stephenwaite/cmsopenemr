@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-24 12:37:15
+<?php /* Smarty version 2.6.2, created on 2014-11-17 21:15:07
          compiled from /var/www/openemr/interface/forms/soap/templates/general_new.html */ ?>
 <html>
 <head>

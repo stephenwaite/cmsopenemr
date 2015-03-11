@@ -11,4 +11,5 @@ CKEDITOR.editorConfig = function( config )
         CKEDITOR.config.shiftEnterMode = CKEDITOR.ENTER_P;
         CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;
         CKEDITOR.config.scayt_autoStartup = true;
+                
 };

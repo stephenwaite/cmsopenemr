@@ -392,7 +392,7 @@ class Claim {
             continue; // it's for some other payer
           }
           else if ($insnumber == '1') {
-            if (preg_match("/\$\s*adjust code (\S+)/i", $rsn, $tmp)) {
+            if (preg_match("/\s*adjust code (\S+)/i", $rsn, $tmp)) {
               $rcode = $tmp[1]; // from 835
             }
             else if ($chg) {
@@ -1179,7 +1179,7 @@ class Claim {
             }
             else
             {
-                $diag=$code_data[1];
+                $diag=$code_data[0];
             }
           }
           $da[$diag] = $diag;

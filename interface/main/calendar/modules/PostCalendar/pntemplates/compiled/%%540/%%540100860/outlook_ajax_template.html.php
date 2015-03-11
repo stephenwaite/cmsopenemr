@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.3.1, created on 2014-04-03 20:05:49
+<?php /* Smarty version 2.3.1, created on 2014-11-24 07:44:16
          compiled from default/views/day_print/outlook_ajax_template.html */ ?>
 <?php $this->_load_plugins(array(
 array('function', 'assign', 'default/views/day_print/outlook_ajax_template.html', 280, false),

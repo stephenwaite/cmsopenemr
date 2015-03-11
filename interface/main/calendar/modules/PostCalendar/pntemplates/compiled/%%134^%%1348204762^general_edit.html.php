@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-21 08:55:57
+<?php /* Smarty version 2.6.2, created on 2014-12-02 14:21:12
          compiled from /var/www/openemr/templates/pharmacies/general_edit.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/pharmacies/general_edit.html', 7, false),array('function', 'html_options', '/var/www/openemr/templates/pharmacies/general_edit.html', 52, false),)), $this); ?>

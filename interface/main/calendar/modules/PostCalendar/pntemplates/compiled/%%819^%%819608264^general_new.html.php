@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-04-14 13:26:04
+<?php /* Smarty version 2.6.2, created on 2014-12-09 12:02:52
          compiled from /var/www/openemr/interface/clickmap/template/general_new.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/interface/clickmap/template/general_new.html', 25, false),)), $this); ?>

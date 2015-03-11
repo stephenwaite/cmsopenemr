@@ -39,6 +39,7 @@
 //   Hindi                          // xl('Hindi')
 //   Hungarian                      // xl('Hungarian')
 //   Italian                        // xl('Italian')
+//   Japanese                       // xl('Japanese')
 //   Lithuanian                     // xl('Lithuanian')
 //   Norwegian                      // xl('Norwegian')
 //   Persian                        // xl('Persian')
@@ -47,6 +48,7 @@
 //   Portuguese (European)          // xl('Portuguese (European)')
 //   Romanian                       // xl('Romanian')
 //   Russian                        // xl('Russian')
+//   Sinhala                        // xl('Sinhala')
 //   Slovak                         // xl('Slovak')
 //   Spanish (Latin American)       // xl('Spanish (Latin American)')
 //   Spanish (Spain)                // xl('Spanish (Spain)')
@@ -306,7 +308,7 @@ $GLOBALS_METADATA = array(
     'allow_debug_language' => array(
       xl('Allow Debugging Language'),
       'bool',                           // data type
-      '0',                              // default = true during development and false for production releases
+      '1',                              // default = true during development and false for production releases
       xl('This will allow selection of the debugging (\'dummy\') language.')
     ),
 
@@ -636,7 +638,7 @@ $GLOBALS_METADATA = array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type
       '0',                             // default = false
-      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen.')
+      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen (a negative number will show the past appointments in descending order)')
     ),      
 
     'activate_ccr_ccd_report' => array(
@@ -692,9 +694,62 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('This specifies whether to include date in Box 31.')
     ),
+	  
+	'amendments' => array (
+		xl('Amendments'),
+		'bool',                           // data type
+		'1',                              // default = true
+		xl('Enable amendments feature')
+	),
 
   ),
-    
+    // E-Sign Tab
+    //
+    'E-Sign' => array(
+            
+    'esign_all' => array(
+      xl('Allows E-Sign on the entire encounter'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This will enable signing an entire encounter, rather than individual forms')
+    ),
+
+    'lock_esign_all' => array(
+      xl('Lock e-signed encounters and their forms'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This will disable the Edit button on all forms whose parent encounter is e-signed')
+    ),
+            
+    'esign_individual' => array(
+      xl('Allows E-Signing Individual Forms'),
+      'bool',                           // data type
+      '1',                              // default = false
+      xl('This will enable signing individual forms separately')
+    ),
+
+    'lock_esign_individual' => array(
+      xl('Lock an e-signed form individually'),
+      'bool',                           // data type
+      '1',                              // default = false
+      xl('This will disable the Edit button on any form that is e-signed')
+    ),
+            
+    'esign_lock_toggle' => array(
+      xl('Enable lock toggle'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This will give the user the option to lock (separate locking and signing)')
+    ),
+
+    'esign_report_hide_empty_sig' => array(
+      xl('Hide Empty E-Sign Logs On Report'),
+      'bool',                           // data type
+      '1',                              // default = false
+      xl('This will hide empty e-sign logs on the patient report')
+    ),
+
+  ),
     //Documents Tab
     'Documents' => array(
         'document_storage_method' => array(
@@ -742,7 +797,29 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable log for document uploads/downloads to CouchDB'),
         ),
+
+    'patient_id_category_name' => array(
+      xl('Patient ID Category Name'),
+      'text',                           // data type
+      'Patient ID card',                // default
+      xl('Optional category name for an ID Card image that can be viewed from the patient summary page.')
     ),
+
+    'patient_photo_category_name' => array(
+      xl('Patient Photo Category Name'),
+      'text',                           // data type
+      'Patient Photograph',             // default
+      xl('Optional category name for photo images that can be viewed from the patient summary page.')
+    ),
+
+    'lab_results_category_name' => array(
+      xl('Lab Results Category Name'),
+      'text',                           // data type
+      'Lab Report',                     // default
+      xl('Document category name for storage of electronically received lab results.')
+    ),
+
+  ),
 
   // Calendar Tab
   //
@@ -1235,6 +1312,14 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
     ),
+	
+	//July 1, 2014: Ensoftek: Flag to enable/disable audit log encryption
+	'enable_auditlog_encryption' => array(
+      xl('Enable Audit Log Encryption'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Enable Audit Log Encryption')
+    ),
 
   ),
 
@@ -1332,20 +1417,6 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       '',
       xl('To automatically open the specified form. Some sports teams use football_injury_audit here.')
-    ),
-
-    'patient_id_category_name' => array(
-      xl('Patient ID Category Name'),
-      'text',                           // data type
-      'Patient ID card',                // default
-      xl('Optional category name for an ID Card image that can be viewed from the patient summary page.')
-    ),
-
-    'patient_photo_category_name' => array(
-      xl('Patient Photo Category Name'),
-      'text',                  // data type
-      'Patient Photograph',    // default
-      xl('Optional category name for photo images that can be viewed from the patient summary page.')
     ),
 
     'MedicareReferrerIsRenderer' => array(
@@ -1458,11 +1529,43 @@ $GLOBALS_METADATA = array(
       'https://ssh.mydocsportal.com/provider.php',
       xl('Offsite Https link for the Patient Portal.')
     ),
+
     'portal_offsite_address_patient_link' => array(
       xl('Offsite Patient Portal Site Address (Patient Link)'),
       'text',                           // data type
       'https://ssh.mydocsportal.com',
       xl('Offsite Https link for the Patient Portal.(Patient Link)')
+    ),
+
+    // Currently the "CMS Portal" supports WordPress.  Other Content Management
+    // Systems may be supported in the future.
+
+    'gbl_portal_cms_enable' => array(
+      xl('Enable CMS Portal'),
+      'bool',                           // data type
+      '0',
+      xl('Enable support for the open source WordPress Portal by Sunset Systems')
+    ),
+
+    'gbl_portal_cms_address' => array(
+      xl('CMS Portal Site Address'),
+      'text',                           // data type
+      'https://your_cms_site.com/',
+      xl('URL for the WordPress site that supports the portal')
+    ),
+
+    'gbl_portal_cms_username' => array(
+      xl('CMS Portal Username'),
+      'text',                           // data type
+      '',
+      xl('Login name of WordPress user for portal access')
+    ),
+
+    'gbl_portal_cms_password' => array(
+      xl('CMS Portal Password'),
+      'text',                           // data type
+      '',
+      xl('Password for the above user')
     ),
 
   ),
@@ -1520,6 +1623,20 @@ $GLOBALS_METADATA = array(
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     
+    'erx_soap_ttl_allergies' => array(
+      xl('NewCrop eRx SOAP Request Time-To-Live for Allergies'),
+      'num',
+      '21600',
+      xl('Time-To-Live for Allergies SOAP Request in seconds')
+    ),
+    
+    'erx_soap_ttl_medications' => array(
+      xl('NewCrop eRx SOAP Request Time-To-Live for Medications'),
+      'num',
+      '21600',
+      xl('Time-To-Live for Medications SOAP Request in seconds')
+    ),
+    
     'partner_name_production' => array(
       xl('NewCrop eRx Partner Name'),
       'text',                           // data type
@@ -1538,6 +1655,13 @@ $GLOBALS_METADATA = array(
       xl('NewCrop eRx Password'),
       'pass',                           // data type
       '',
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+    ),
+    
+    'erx_account_id' => array(
+      xl('NewCrop eRx Account Id'),
+      'text',                           // data type
+      '1',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     
@@ -1636,7 +1760,6 @@ $GLOBALS_METADATA = array(
       '0',
       xl('phiMail Allow CCR Send')
     )
-
   ),
   
   'Rx' => array(
@@ -1756,6 +1879,338 @@ $GLOBALS_METADATA = array(
       '30',
       xl('Rx Bottom Margin (px)')
     ),
-  ),    
+  ),  
+    
+  'PDF' => array (
+   'pdf_layout' => array (
+       xl('Layout'),
+       array(
+           'P' => xl('Portrait'),
+           'L' => xl('Landscape')
+       ),
+       'P', //defaut
+       xl("Choose Layout Direction"),
+    ),
+    'pdf_language' => array (  
+       xl('PDF Language'),
+       array(
+            'aa' => xl('Afar'),
+            'af' => xl('Afrikaans'),
+            'ak' => xl('Akan'),
+            'sq' => xl('Albanian'),
+            'am' => xl('Amharic'),
+            'ar' => xl('Arabic'),
+            'an' => xl('Aragonese'),
+            'hy' => xl('Armenian'),
+            'as' => xl('Assamese'),
+            'av' => xl('Avaric'),
+            'ae' => xl('Avestan'),
+            'ay' => xl('Aymara'),
+            'az' => xl('Azerbaijani'),
+            'bm' => xl('Bambara'),
+            'ba' => xl('Bashkir'),
+            'eu' => xl('Basque'),
+            'be' => xl('Belarusian'),
+            'bn' => xl('Bengali- Bangla'),
+            'bh' => xl('Bihari'),
+            'bi' => xl('Bislama'),
+            'bs' => xl('Bosnian'),
+            'br' => xl('Breton'),
+            'bg' => xl('Bulgarian'),
+            'my' => xl('Burmese'),
+            'ca' => xl('Catalan- Valencian'),
+            'ch' => xl('Chamorro'),
+            'ce' => xl('Chechen'),
+            'ny' => xl('Chichewa- Chewa- Nyanja'),
+            'zh' => xl('Chinese'),
+            'cv' => xl('Chuvash'),
+            'kw' => xl('Cornish'),
+            'co' => xl('Corsican'),
+            'cr' => xl('Cree'),
+            'hr' => xl('Croatian'),
+            'cs' => xl('Czech'),
+            'da' => xl('Danish'),
+            'dv' => xl('Divehi- Dhivehi- Maldivian-'),
+            'nl' => xl('Dutch'),
+            'dz' => xl('Dzongkha'),
+            'en' => xl('English'),
+            'eo' => xl('Esperanto'),
+            'et' => xl('Estonian'),
+            'ee' => xl('Ewe'),
+            'fo' => xl('Faroese'),
+            'fj' => xl('Fijian'),
+            'fi' => xl('Finnish'),
+            'fr' => xl('French'),
+            'ff' => xl('Fula- Fulah- Pulaar- Pular'),
+            'gl' => xl('Galician'),
+            'ka' => xl('Georgian'),
+            'de' => xl('German'),
+            'el' => xl('Greek, Modern'),
+            'gn' => xl('Guaraní'),
+            'gu' => xl('Gujarati'),
+            'ht' => xl('Haitian- Haitian Creole'),
+            'ha' => xl('Hausa'),
+            'he' => xl('Hebrew (modern)'),
+            'hz' => xl('Herero'),
+            'hi' => xl('Hindi'),
+            'ho' => xl('Hiri Motu'),
+            'hu' => xl('Hungarian'),
+            'ia' => xl('Interlingua'),
+            'id' => xl('Indonesian'),
+            'ie' => xl('Interlingue'),
+            'ga' => xl('Irish'),
+            'ig' => xl('Igbo'),
+            'ik' => xl('Inupiaq'),
+            'io' => xl('Ido'),
+            'is' => xl('Icelandic'),
+            'it' => xl('Italian'),
+            'iu' => xl('Inuktitut'),
+            'ja' => xl('Japanese'),
+            'jv' => xl('Javanese'),
+            'kl' => xl('Kalaallisut, Greenlandic'),
+            'kn' => xl('Kannada'),
+            'kr' => xl('Kanuri'),
+            'ks' => xl('Kashmiri'),
+            'kk' => xl('Kazakh'),
+            'km' => xl('Khmer'),
+            'ki' => xl('Kikuyu, Gikuyu'),
+            'rw' => xl('Kinyarwanda'),
+            'ky' => xl('Kyrgyz'),
+            'kv' => xl('Komi'),
+            'kg' => xl('Kongo'),
+            'ko' => xl('Korean'),
+            'ku' => xl('Kurdish'),
+            'kj' => xl('Kwanyama, Kuanyama'),
+            'la' => xl('Latin'),
+            'lb' => xl('Luxembourgish, Letzeburgesch'),
+            'lg' => xl('Ganda'),
+            'li' => xl('Limburgish, Limburgan, Limburger'),
+            'ln' => xl('Lingala'),
+            'lo' => xl('Lao'),
+            'lt' => xl('Lithuanian'),
+            'lu' => xl('Luba-Katanga'),
+            'lv' => xl('Latvian'),
+            'gv' => xl('Manx'),
+            'mk' => xl('Macedonian'),
+            'mg' => xl('Malagasy'),
+            'ms' => xl('Malay'),
+            'ml' => xl('Malayalam'),
+            'mt' => xl('Maltese'),
+            'mi' => xl('Māori'),
+            'mr' => xl('Marathi (Marāṭhī)'),
+            'mh' => xl('Marshallese'),
+            'mn' => xl('Mongolian'),
+            'na' => xl('Nauru'),
+            'nv' => xl('Navajo, Navaho'),
+            'nb' => xl('Norwegian Bokmål'),
+            'nd' => xl('North Ndebele'),
+            'ne' => xl('Nepali'),
+            'ng' => xl('Ndonga'),
+            'nn' => xl('Norwegian Nynorsk'),
+            'no' => xl('Norwegian'),
+            'ii' => xl('Nuosu'),
+            'nr' => xl('South Ndebele'),
+            'oc' => xl('Occitan'),
+            'oj' => xl('Ojibwe, Ojibwa'),
+            'cu' => xl('Old Church Slavonic, Church Slavonic, Old Bulgarian'),
+            'om' => xl('Oromo'),
+            'or' => xl('Oriya'),
+            'os' => xl('Ossetian, Ossetic'),
+            'pa' => xl('Panjabi, Punjabi'),
+            'pi' => xl('Pāli'),
+            'fa' => xl('Persian (Farsi)'),
+            'pl' => xl('Polish'),
+            'ps' => xl('Pashto, Pushto'),
+            'pt' => xl('Portuguese'),
+            'qu' => xl('Quechua'),
+            'rm' => xl('Romansh'),
+            'rn' => xl('Kirundi'),
+            'ro' => xl('Romanian'),
+            'ru' => xl('Russian'),
+            'sa' => xl('Sanskrit (Saṁskṛta)'),
+            'sc' => xl('Sardinian'),
+            'sd' => xl('Sindhi'),
+            'se' => xl('Northern Sami'),
+            'sm' => xl('Samoan'),
+            'sg' => xl('Sango'),
+            'sr' => xl('Serbian'),
+            'gd' => xl('Scottish Gaelic- Gaelic'),
+            'sn' => xl('Shona'),
+            'si' => xl('Sinhala, Sinhalese'),
+            'sk' => xl('Slovak'),
+            'sl' => xl('Slovene'),
+            'so' => xl('Somali'),
+            'st' => xl('Southern Sotho'),
+            'es' => xl('Spanish- Castilian'),
+            'su' => xl('Sundanese'),
+            'sw' => xl('Swahili'),
+            'ss' => xl('Swati'),
+            'sv' => xl('Swedish'),
+            'ta' => xl('Tamil'),
+            'te' => xl('Telugu'),
+            'tg' => xl('Tajik'),
+            'th' => xl('Thai'),
+            'ti' => xl('Tigrinya'),
+            'bo' => xl('Tibetan Standard, Tibetan, Central'),
+            'tk' => xl('Turkmen'),
+            'tl' => xl('Tagalog'),
+            'tn' => xl('Tswana'),
+            'to' => xl('Tonga (Tonga Islands)'),
+            'tr' => xl('Turkish'),
+            'ts' => xl('Tsonga'),
+            'tt' => xl('Tatar'),
+            'tw' => xl('Twi'),
+            'ty' => xl('Tahitian'),
+            'ug' => xl('Uyghur, Uighur'),
+            'uk' => xl('Ukrainian'),
+            'ur' => xl('Urdu'),
+            'uz' => xl('Uzbek'),
+            've' => xl('Venda'),
+            'vi' => xl('Vietnamese'),
+            'vo' => xl('Volapük'),
+            'wa' => xl('Walloon'),
+            'cy' => xl('Welsh'),
+            'wo' => xl('Wolof'),
+            'fy' => xl('Western Frisian'),
+            'xh' => xl('Xhosa'),
+            'yi' => xl('Yiddish'),
+            'yo' => xl('Yoruba'),
+            'za' => xl('Zhuang, Chuang'),
+            'zu' => xl('Zulu'),
+       ),
+      'en', // default English
+      xl('Choose PDF languange Preference'),
+    ),
+   'pdf_size' => array(
+      xl('Paper Size'),               // Descriptive Name
+      array(
+        'LETTER' => xl('Letter Paper Size'),
+        'LEGAL' => xl('Legal Paper Size'),
+        'FOLIO' => xl('Folio Paper Size'),
+        'EXECUTIVE' => xl('Executive Paper Size'),
+        '4A0' => ('4A0' . " " . xl('Paper Size')),
+        '2A0' => ('2A0' . " " . xl('Paper Size')),
+        'A0' => ('A0' . " " . xl('Paper Size')),
+        'A1' => ('A1' . " " . xl('Paper Size')),
+        'A2' => ('A2' . " " . xl('Paper Size')),
+        'A3' => ('A3' . " " . xl('Paper Size')),
+        'A4' => ('A4' . " " . xl('Paper Size')),
+        'A5' => ('A5' . " " . xl('Paper Size')),
+        'A6' => ('A6' . " " . xl('Paper Size')),
+        'A7' => ('A7' . " " . xl('Paper Size')),
+        'A8' => ('A8' . " " . xl('Paper Size')),
+        'A9' => ('A9' . " " . xl('Paper Size')),
+        'A10' => ('A10' . " " . xl('Paper Size')),
+        'B0' => ('B0' . " " . xl('Paper Size')),
+        'B1' => ('B1' . " " . xl('Paper Size')),
+        'B2' => ('B2' . " " . xl('Paper Size')),
+        'B3' => ('B3' . " " . xl('Paper Size')),
+        'B4' => ('B4' . " " . xl('Paper Size')),
+        'B5' => ('B5' . " " . xl('Paper Size')),
+        'B6' => ('B6' . " " . xl('Paper Size')),
+        'B7' => ('B7' . " " . xl('Paper Size')),
+        'B8' => ('B8' . " " . xl('Paper Size')),
+        'B9' => ('B9' . " " . xl('Paper Size')),
+        'B10' => ('B10' . " " . xl('Paper Size')),
+        'C0' => ('C0' . " " . xl('Paper Size')),
+        'C1' => ('C1' . " " . xl('Paper Size')),
+        'C2' => ('C2' . " " . xl('Paper Size')),
+        'C3' => ('C3' . " " . xl('Paper Size')),
+        'C4' => ('C4' . " " . xl('Paper Size')),
+        'C5' => ('C5' . " " . xl('Paper Size')),
+        'C6' => ('C6' . " " . xl('Paper Size')),
+        'C7' => ('C7' . " " . xl('Paper Size')),
+        'C8' => ('C8' . " " . xl('Paper Size')),
+        'C9' => ('C9' . " " . xl('Paper Size')),
+        'C10' => ('C10' . " " . xl('Paper Size')),
+        'RA0' => ('RA0' . " " . xl('Paper Size')),
+        'RA1' => ('RA1' . " " . xl('Paper Size')),
+        'RA2' => ('RA2' . " " . xl('Paper Size')),
+        'RA3' => ('RA3' . " " . xl('Paper Size')),
+        'RA4' => ('RA4' . " " . xl('Paper Size')),
+        'SRA0' => ('SRA0' . " " . xl('Paper Size')),
+        'SRA1' => ('SRA1' . " " . xl('Paper Size')),
+        'SRA2' => ('SRA2' . " " . xl('Paper Size')),
+        'SRA3' => ('SRA3' . " " . xl('Paper Size')),
+        'SRA4' => ('SRA4' . " " . xl('Paper Size')),
+      ),
+      'LETTER',               
+      xl('Choose Paper Size')
+    ),
+    'pdf_left_margin' => array(
+      xl('Left Margin (mm)'),
+      'num',
+      '5',
+      xl('Left Margin (mm)')
+    ),
+    'pdf_right_margin' => array(
+      xl('Right Margin (mm)'),
+      'num',
+      '5',
+      xl('Right Margin (mm)')
+    ),
+    'pdf_top_margin' => array(
+      xl('Top Margin (mm)'),
+      'num',
+      '5',
+      xl('Top Margin (mm)')
+    ),
+    'pdf_bottom_margin' => array(
+      xl('Bottom Margin (px)'),
+      'num',
+      '8',
+      xl('Bottom Margin (px)')
+    ),
+   'pdf_output' => array (
+       xl('Output Type'),
+       array(
+           'D' => xl('Download'),
+           'I' => xl('Inline')
+       ),
+       'D', //defaut
+       xl("Choose Download or Display Inline"),
+    ),
+   	
+    'chart_label_type' => array(
+        xl('Patient Label Type'),
+        array(
+            '0' => xl('None'),
+            '1' => '5160',
+            '2' => '5161',
+            '3' => '5162'
+        ),
+        '1', // default	
+        xl('Avery Label type for printing patient labels from popups in left nav screen'),
+    ),   
+
+    'barcode_label_type' => array(
+        xl('Barcode Label Type'),
+       array(
+            '0'  => xl('None'),
+            '1'  => 'std25',
+            '2'  => 'int25',
+            '3'  => 'ean8',
+            '4'  => 'ean13',
+            '5'  => 'upc',
+            '6'  => 'code11',
+            '7'  => 'code39',
+            '8'  => 'code93',
+            '9'  => 'code128',
+            '10' => 'codabar',
+            '11' => 'msi',
+            '12' => 'datamatrix'
+	    ),
+        '9',                              // default = None
+        xl('Barcode type for printing barcode labels from popups in left nav screen.')
+    ),
+	
+    'addr_label_type' => array(
+        xl('Print Patient Address Label'),
+        'bool',                           // data type
+        '1',                              // default = false
+        xl('Select to print patient address labels from popups in left nav screen.')
+    ),
+	
+   ),
 );
 ?>

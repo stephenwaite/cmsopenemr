@@ -519,7 +519,7 @@ font-weight: bold;
     width:100%;
 }
 #report_custom hr {
-    border: 1px dotted black;
+    border: 2px dotted black;
 }
 #report_custom .billing {
     margin: 5px;

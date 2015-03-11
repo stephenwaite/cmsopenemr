@@ -232,16 +232,16 @@ require_once("$srcdir/formatting.inc.php");
 ?>
 
  <tr>
-  <td class='bold'><?php echo ($rownum ? '&nbsp;' : 'Summary by Method')?></td>
-  <td colspan='2'>&nbsp;</td>
-  <td class='bold'><?php echo $row['method'] ?></td>
-  <td colspan='3'>&nbsp;</td>
-  <td class='bold' align='right'><?php echo bucks($row['amt']) ?></td>
+ <td class='bold'><?php echo ($rownum ? '&nbsp;' : 'Summary by Method')?></td>
+ <td colspan='2'>&nbsp;</td>
+ <td class='bold'><?php echo $row['method'] ?></td>
+ <td colspan='3'>&nbsp;</td>
+ <td class='bold' align='right'><?php echo bucks($row['amt']) ?></td>
  </tr>
 <?php
-    $rownum++;
-  } ?>
-
+   $rownum++;
+   } ?> 
+   
  <tr class="report_totals">
   <td colspan='5'>
    <?php xl('Totals','e'); ?>

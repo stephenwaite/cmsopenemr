@@ -252,7 +252,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
           ";
       }
       else {
-        $param2 = " AND facility_id = $facility ";
+//        $param2 = " AND facility_id = $facility ";
       }
     }
     //--------------------------------

@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-08-04 16:36:05
+<?php /* Smarty version 2.6.2, created on 2014-12-01 10:09:27
          compiled from /var/www/openemr/templates/document_categories/general_list.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/document_categories/general_list.html', 17, false),)), $this); ?>

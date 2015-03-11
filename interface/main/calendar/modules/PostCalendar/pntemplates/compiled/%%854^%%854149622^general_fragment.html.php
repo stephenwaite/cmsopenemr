@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-18 08:06:12
+<?php /* Smarty version 2.6.2, created on 2014-11-15 22:35:33
          compiled from /var/www/openemr/templates/prescription/general_fragment.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/prescription/general_fragment.html', 4, false),)), $this); ?>

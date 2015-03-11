@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-18 13:38:58
+<?php /* Smarty version 2.6.2, created on 2014-11-18 09:08:21
          compiled from /var/www/openemr/templates/prescription/general_edit.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/prescription/general_edit.html', 95, false),array('function', 'amcCollect', '/var/www/openemr/templates/prescription/general_edit.html', 115, false),array('function', 'html_select_date', '/var/www/openemr/templates/prescription/general_edit.html', 136, false),array('function', 'html_options', '/var/www/openemr/templates/prescription/general_edit.html', 142, false),array('function', 'html_radios', '/var/www/openemr/templates/prescription/general_edit.html', 227, false),)), $this); ?>

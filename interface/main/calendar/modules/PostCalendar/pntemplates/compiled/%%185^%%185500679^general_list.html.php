@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-03-19 09:28:01
+<?php /* Smarty version 2.6.2, created on 2014-11-18 14:29:22
          compiled from /var/www/openemr/templates/insurance_companies/general_list.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/insurance_companies/general_list.html', 2, false),array('modifier', 'upper', '/var/www/openemr/templates/insurance_companies/general_list.html', 13, false),)), $this); ?>

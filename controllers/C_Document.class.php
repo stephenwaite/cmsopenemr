@@ -10,6 +10,8 @@ require_once(dirname(__FILE__) . "/../library/classes/CategoryTree.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/TreeMenu.php");
 require_once(dirname(__FILE__) . "/../library/classes/Note.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/CouchDB.class.php");
+require_once(dirname(__FILE__) . "/../library/forms.inc");
+require_once(dirname(__FILE__) . "/../library/formatting.inc.php");
 
 class C_Document extends Controller {
 
@@ -18,8 +20,6 @@ class C_Document extends Controller {
 	var $document_categories;
 	var $tree;
 	var $_config;
-	var $file_path;
-	
         var $manual_set_owner=false; // allows manual setting of a document owner/service
 
 	function C_Document($template_mod = "general") {
@@ -31,31 +31,7 @@ class C_Document extends Controller {
 		
 		//get global config options for this namespace
 		$this->_config = $GLOBALS['oer_config']['documents'];
-		if($GLOBALS['document_storage_method']==1){
-			$this->file_path = $GLOBALS['OE_SITE_DIR'].'/documents/temp/';
-		}
-		else{
-                        if ( (!empty($_GET['higher_level_path'])) && (is_numeric($_GET['patient_id']) && $_GET['patient_id']>0) ) {
-                                // Allow higher level directory structure in documents directory and a patient is mapped
-		                $this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9\/]/","_",$_GET['higher_level_path']) . "/";
-                        }
-                        else if (!empty($_GET['higher_level_path'])) {
-                                // Allow higher level directory structure in documents directory and there is no patient mapping
-                                //  (Since a patient is not mapped, will create up to 10000 random directories and increment the path_depth by 1)
-                                $this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9\/]/","_",$_GET['higher_level_path']) . "/" . rand(1,10000)  . "/";
-                                $_POST['path_depth'] = $_POST['path_depth'] + 1;
-                        }
-                        else if ( !(is_numeric($_GET['patient_id'])) || !($_GET['patient_id']>0) ) {
-                                // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
-                                //  (Since a patient is not mapped, will create up to 10000 random directories and set the path_depth to 2)
-                                $this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9]/","_",$_GET['patient_id']) . "/" . rand(1,10000)  . "/";
-                                $_POST['path_depth'] = 2;
-                        }
-                        else {
-                                // This is the default action where the patient is is used as one level directory structure in documents directory
-                                $this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9]/","_",$_GET['patient_id']) . "/";
-                        }
-		}
+
 		$this->_args = array("patient_id" => $_GET['patient_id']);
 		
 		$this->assign("STYLE", $GLOBALS['style']);
@@ -70,6 +46,27 @@ class C_Document extends Controller {
 		$this->assign("category_name", $category_name);
 		$this->assign("hide_encryption", $GLOBALS['hide_document_encryption'] );
 		$this->assign("patient_id", $patient_id);
+
+    // Added by Rod to support document template download from general_upload.html.
+    // Cloned from similar stuff in manage_document_templates.php.
+    $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/doctemplates';
+    $templates_options = "<option value=''>-- " . xl('Select Template') . " --</option>";
+    $dh = opendir($templatedir);
+    if ($dh) {
+      $templateslist = array();
+      while (false !== ($sfname = readdir($dh))) {
+        if (substr($sfname, 0, 1) == '.') continue;
+        $templateslist[$sfname] = $sfname;
+      }
+      closedir($dh);
+      ksort($templateslist);
+      foreach ($templateslist as $sfname) {
+        $templates_options .= "<option value='" . htmlspecialchars($sfname, ENT_QUOTES) .
+          "'>" . htmlspecialchars($sfname) . "</option>";
+      }
+    }
+    $this->assign("TEMPLATES_LIST", $templates_options);
+
 		$activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
 		$this->assign("activity", $activity);
 		return $this->list_action($patient_id);
@@ -108,7 +105,12 @@ class C_Document extends Controller {
         if (is_numeric($_POST['category_id'])) {	
             $category_id = $_POST['category_id'];
         }
-        if (is_numeric($_POST['patient_id'])) {
+
+        $patient_id = 0;
+        if (isset($_GET['patient_id']) && !$couchDB) {
+            $patient_id = $_GET['patient_id'];
+        }
+        else if (is_numeric($_POST['patient_id'])) {
             $patient_id = $_POST['patient_id'];
         }
 
@@ -128,146 +130,57 @@ class C_Document extends Controller {
                         $error .= "The system does not permit uploading files of with size 0.\n";
                     }
                 }else{
-
-                    if (!file_exists($this->file_path)) {
-                        if (!mkdir($this->file_path,0700,true)) {
-                            $error .= "The system was unable to create the directory for this upload, '" . $this->file_path . "'.\n";
-                        }
+                    $tmpfile = fopen($_FILES['file']['tmp_name'][$key], "r");
+                    $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
+                    fclose($tmpfile);
+                    if ($doDecryption) {
+                      $filetext = $this->decrypt($filetext, $passphrase);
                     }
-
                     if ( $_POST['destination'] != '' ) {
-                        $fname = $_POST['destination'];
+                      $fname = $_POST['destination'];
                     }
-                    $fname = preg_replace("/[^a-zA-Z0-9_.]/","_",$fname);
-                    if (file_exists($this->file_path.$fname)) {
-                        $error .= xl('File with same name already exists at location:','','',' ') . $this->file_path . "\n";
-                        $fname = basename($this->_rename_file($this->file_path.$fname));
-                        $_FILES['file']['name'][$key] = $fname;
-                        $error .= xl('Current file name was changed to','','',' ') . $fname ."\n";
-                    }
-
-                    if ( $doDecryption ) {
-                        $tmpfile = fopen( $_FILES['file']['tmp_name'][$key] , "r" );
-                        $filetext = fread( $tmpfile, $_FILES['file']['size'][$key]  );
-                        $plaintext = $this->decrypt( $filetext, $passphrase );
-                        fclose($tmpfile);
-                        unlink( $_FILES['file']['tmp_name'][$key] );
-                        $tmpfile = fopen( $_FILES['file']['tmp_name'][$key], "w+" );
-                        fwrite( $tmpfile, $plaintext );
-                        fclose( $tmpfile );
-                        $_FILES['file']['size'][$key] = filesize( $_FILES['file']['tmp_name'][$key] );
-                    }
-
-                    $docid = '';
-                    $resp = '';			
-                    if($couchDB == true){
-                        $couch = new CouchDB();
-                        $docname = $_SESSION['authId'].$patient_id.$encounter.$fname.date("%Y-%m-%d H:i:s");
-                        $docid = $couch->stringToId($docname);
-                        $tmpfile = fopen( $_FILES['file']['tmp_name'][$key], "rb" );
-                        $filetext = fread( $tmpfile, $_FILES['file']['size'][$key] );				
-                        fclose( $tmpfile );
-                        //--------Temporarily writing the file for calculating the hash--------//
-                        //-----------Will be removed after calculating the hash value----------//
-                        $temp_file = fopen($this->file_path.$fname,"w");
-                        fwrite($temp_file,$filetext);
-                        fclose($temp_file);
-                        //---------------------------------------------------------------------//
-
-                        $json = json_encode(base64_encode($filetext));
-                        $db = $GLOBALS['couchdb_dbase'];
-                        $data = array($db,$docid,$patient_id,$encounter,$_FILES['file']['type'][$key],$json);
-                        $resp = $couch->check_saveDOC($data);
-                        if(!$resp->id || !$resp->_rev){
-                            $data = array($db,$docid,$patient_id,$encounter);
-                            $resp = $couch->retrieve_doc($data);
-                            $docid = $resp->_id;
-                            $revid = $resp->_rev;
-                        }
-                        else{
-                            $docid = $resp->id;
-                            $revid = $resp->rev;
-                        }
-                        if(!$docid && !$revid){ //if couchdb save failed
-                            $error .=  "<font color='red'><b>".xl("The file could not be saved to CouchDB.") . "</b></font>\n";
-                            if($GLOBALS['couchdb_log']==1){
-                                ob_start();
-                                var_dump($resp);
-                                $couchError=ob_get_clean();
-                                $log_content = date('Y-m-d H:i:s')." ==> Uploading document: ".$fname."\r\n";
-                                $log_content .= date('Y-m-d H:i:s')." ==> Failed to Store document content to CouchDB.\r\n";
-                                $log_content .= date('Y-m-d H:i:s')." ==> Document ID: ".$docid."\r\n";
-                                $log_content .= date('Y-m-d H:i:s')." ==> ".print_r($data,1)."\r\n";
-                                $log_content .= $couchError;
-                                $this->document_upload_download_log($patient_id,$log_content);//log error if any, for testing phase only
-                            }
-                        }
-                        else
-                        {
-                            $this->assign("upload_success", "true");
-                        }
-                    }
-
-                    if($harddisk == true){
-                        $uploadSuccess = false;
-                        $move_cmd = ($non_HTTP_owner ? "rename" : "move_uploaded_file");
-                        if($move_cmd($_FILES['file']['tmp_name'][$key],$this->file_path.$fname)){
-                            $uploadSuccess = true;
-                            $this->assign("upload_success", "true");
-                        }
-                        else{
-                            $error .= xl("The file could not be succesfully stored, this error is usually related to permissions problems on the storage system")."\n";
-                        }
-                    }
-
                     $d = new Document();
-                    $d->storagemethod = $GLOBALS['document_storage_method'];
-                    if($harddisk == true) {
-                        $d->url = "file://" .$this->file_path.$fname;
-                        if (is_numeric($_POST['path_depth'])) {
-                        // this is for when directory structure is more than one level
-                        $d->path_depth = $_POST['path_depth'];
-                        }
+                    $rc = $d->createDocument($patient_id, $category_id, $fname,
+                      $_FILES['file']['type'][$key], $filetext,
+                      empty($_GET['higher_level_path']) ? '' : $_GET['higher_level_path'],
+                      empty($_POST['path_depth']) ? 1 : $_POST['path_depth'],
+                      $non_HTTP_owner);
+                    if ($rc) {
+                      $error .= $rc . "\n";
                     }
                     else {
-                        $d->url = $fname;
-                                        }
-                    if($couchDB == true){
-                        $d->couch_docid = $docid;
-                        $d->couch_revid = $revid;
-                    }
-                    if ($_FILES['file']['type'][$key] == 'text/xml') {
-                        $d->mimetype = 'application/xml';
-                    }
-                    else {
-                        $d->mimetype = $_FILES['file']['type'][$key];
-                    }                                 
-                    $d->size = $_FILES['file']['size'][$key];
-                    $d->owner = $non_HTTP_owner ? $non_HTTP_owner : $_SESSION['authUserID'];
-                    $sha1Hash = sha1_file( $this->file_path.$fname );
-                    if($couchDB == true){
-                        //Removing the temporary file which is used to create the hash
-                        unlink($this->file_path.$fname);
-                    }
-                    $d->hash = $sha1Hash;
-                    $d->type = $d->type_array['file_url'];
-                    $d->set_foreign_id($patient_id);
-                    if(( ($harddisk == true) && $uploadSuccess ) || ($couchDB == true && $docid && $revid)){
-                        $d->persist();
-                        $d->populate();
+                      $this->assign("upload_success", "true");
                     }
                     $sentUploadStatus[] = $d;
-                    $this->assign("file",$sentUploadStatus);
-
-                    if (is_numeric($d->get_id()) && is_numeric($category_id)){
-                        $sql = "REPLACE INTO categories_to_documents set category_id = '" . $category_id . "', document_id = '" . $d->get_id() . "'";
-                        $d->_db->Execute($sql);
-                    }
-                    if($GLOBALS['couchdb_log']==1 && $log_content!=''){
-                        $log_content .= "\r\n\r\n";
-                        $this->document_upload_download_log($patient_id,$log_content);
-                    }
+                    $this->assign("file", $sentUploadStatus);
                 }
+
+                // Option to run a custom plugin for each file upload.
+                // This was initially created to delete the original source file in a custom setting.
+                $upload_plugin = $GLOBALS['OE_SITE_DIR'] . "/documentUpload.plugin.php";
+                if (file_exists($upload_plugin)) {
+                  include_once($upload_plugin);
+                }
+                $upload_plugin_pp = 'documentUploadPostProcess';
+                if (function_exists($upload_plugin_pp)) {
+                  $tmp = call_user_func($upload_plugin_pp, $value, $d);
+                  if ($tmp) {
+                    $error = $tmp;
+                  }
+                }
+                // Following is just an example of code in such a plugin file.
+                /*****************************************************
+                function documentUploadPostProcess($filename, &$d) {
+                  $userid = $_SESSION['authUserID'];
+                  $row = sqlQuery("SELECT username FROM users WHERE id = ?", array($userid));
+                  $owner = strtolower($row['username']);
+                  $dn = '1_' . ucfirst($owner);
+                  $filepath = "/shared_network_directory/$dn/$filename";
+                  if (@unlink($filepath)) return '';
+                  return "Failed to delete '$filepath'.";
+                }
+                *****************************************************/
+
             }
         }
 
@@ -345,7 +258,30 @@ class C_Document extends Controller {
 			$issues_options .= "<option value='" . $irow['id'] . "'$sel>$desc</option>";
 		}
 		$this->assign("ISSUES_LIST", $issues_options);
-
+		
+		// For tagging to encounter
+		// Populate the dropdown with patient's encounter list
+		$this->assign("TAG_ACTION",$this->_link("tag") . "document_id=" . $d->get_id() . "&process=true");
+		$encOptions = "<option value='0'>-- " . xlt('Select Encounter') . " --</option>";
+		$result_docs = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
+			"LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date desc",array($patient_id));
+		if ( sqlNumRows($result_docs) > 0)
+		while($row_result_docs = sqlFetchArray($result_docs)) {
+		 	$sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : ''; 
+			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text($row_result_docs['pc_catname'])."</option>";
+		}
+		$this->assign("ENC_LIST", $encOptions);
+		
+		//Populate the dropdown with category list
+		$visit_category_list = "<option value='0'>-- " . xlt('Select One') . " --</option>";
+		$cres = sqlStatement("SELECT pc_catid, pc_catname FROM openemr_postcalendar_categories ORDER BY pc_catname");
+		while ($crow = sqlFetchArray($cres)) {
+			$catid = $crow['pc_catid'];
+			if ($catid < 9 && $catid != 5) continue; // Applying same logic as in new encounter page.
+			$visit_category_list .="<option value='".attr($catid)."'>" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+		}
+		$this->assign("VISIT_CATEGORY_LIST", $visit_category_list);
+		 
 		$this->assign("notes",$notes);
 		
 		$this->_last_node = null;
@@ -668,7 +604,7 @@ class C_Document extends Controller {
 			//see if the patient dir exists in the repository and create if not
 			if (!file_exists($new_path)) {		  		
 		  		if (!mkdir($new_path,0700)) {
-		  			$messages .= "The system was unable to create the directory for this upload, '" . $this->file_path . "'.\n";
+		  			$messages .= "The system was unable to create the directory for this upload, '" . $new_path . "'.\n";
 		  			continue;
 		  		}
 		  	}
@@ -1090,12 +1026,79 @@ class C_Document extends Controller {
 		fclose($LOG);
 	}
 
-}
 //place to hold optional code
 //$first_node = array_keys($t->tree);
 		//$first_node = $first_node[0];
 		//$node1 = new HTML_TreeNode(array('text' => $t->get_node_name($first_node), 'link' => "test.php", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => true), array('onclick' => "alert('foo'); return false", 'onexpand' => "alert('Expanded')"));
 		
 		//$this->_last_node = &$node1;
+	
+// Function to tag a document to an encounter.
+function tag_action_process($patient_id="", $document_id) {
+	if ($_POST['process'] != "true") {
+		die("process is '" . text($_POST['process']) . "', expected 'true'");
+		return;
+	}
+	
+	// Create Encounter and Tag it.
+	$event_date = date('Y-m-d H:i:s');
+	$encounter_id = $_POST['encounter_id'];
+	$encounter_check = $_POST['encounter_check'];
+	$visit_category_id = $_POST['visit_category_id'];
 
+	if (is_numeric($document_id)) {
+		$messages = '';
+		$d = new Document( $document_id );
+		$file_name = $d->get_url_file();
+		if (!is_numeric($encounter_id)) {
+			$encounter_id = 0;
+		}
+		
+		$encounter_check = ( $encounter_check == 'on') ? 1 : 0;
+		if ($encounter_check) {
+			$provider_id = $_SESSION['authUserID'] ;
+			
+			// Get the logged in user's facility
+			$facilityRow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array("$provider_id"));
+			$username = $facilityRow['username'];
+			$facility = $facilityRow['facility'];
+			$facility_id = $facilityRow['facility_id'];
+			// Get the primary Business Entity facility to set as billing facility, if null take user's facility as billing facility
+			$billingFacility = sqlQuery("SELECT id FROM facility WHERE primary_business_entity = 1");
+			$billingFacilityID = ( $billingFacility['id'] ) ? $billingFacility['id'] : $facility_id;
+			
+			$conn = $GLOBALS['adodb']['db'];
+			$encounter = $conn->GenID("sequences");
+			$query = "INSERT INTO form_encounter SET
+						date = ?,
+						reason = ?,
+						facility = ?,
+						sensitivity = 'normal', 
+						pc_catid = ?,
+						facility_id = ?,
+						billing_facility = ?,
+						provider_id = ?,
+						pid = ?,
+						encounter = ?";
+			$bindArray = array($event_date,$file_name,$facility,$_POST['visit_category_id'],(int)$facility_id,(int)$billingFacilityID,(int)$provider_id,$patient_id,$encounter);
+			$formID = sqlInsert($query,$bindArray);
+			addForm($encounter, "New Patient Encounter",$formID,"newpatient", $patient_id, "1", date("Y-m-d H:i:s"), $username );	            
+			$d->set_encounter_id($encounter);
+			
+		} else {
+			$d->set_encounter_id($encounter_id);
+		}
+		$d->set_encounter_check($encounter_check);
+		$d->persist();
+
+		$messages .= xlt('Document tagged to Encounter successfully') . "<br>";
+	}
+
+	$this->_state = false;
+	$this->assign("messages", $messages);
+	
+	return $this->view_action($patient_id, $document_id);
+}
+
+}
 ?>

@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.2, created on 2014-06-26 13:53:59
+<?php /* Smarty version 2.6.2, created on 2014-12-05 17:04:45
          compiled from /var/www/openemr/templates/insurance_numbers/general_edit.html */ ?>
 <?php require_once(SMARTY_DIR . 'core' . DIRECTORY_SEPARATOR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('function', 'xl', '/var/www/openemr/templates/insurance_numbers/general_edit.html', 16, false),array('function', 'html_options', '/var/www/openemr/templates/insurance_numbers/general_edit.html', 52, false),)), $this); ?>

@@ -249,8 +249,11 @@ function csv_edih_basedir() {
 function csv_edih_tmpdir() {
     //define("IBR_UPLOAD_DIR", "/tmp/edihist"); 
     $systmp = sys_get_temp_dir();
-    $systmp = stripcslashes($systmp);
-    return $systmp."/edihist";
+    if (substr($systmp, -1) == DIRECTORY_SEPARATOR) {
+        return $systmp."edihist";
+    } else {
+        return $systmp.DIRECTORY_SEPARATOR."edihist";
+    }
 }
    
 
@@ -465,7 +468,7 @@ function csv_parameters($type="ALL") {
 						"files_csv"=>$edihist_dir.'/csv/files_277.csv', "datecolumn"=>'0', "fncolumn"=>'1', "regex"=>'/\.277([ei]br)?$/');
 	// OpenEMR stores era files, but the naming scheme is confusing, so we will just use our own directory for them 
 	$p_ar['era'] = array("type"=>'era', "directory"=>$edihist_dir.'/era', "claims_csv"=>$edihist_dir.'/csv/claims_era.csv', 
-						"files_csv"=>$edihist_dir.'/csv/files_era.csv', "datecolumn"=>'0', "fncolumn"=>'1', "regex"=>'/\.835|835[0-9]{5}\.835*|\.(era|ERA)$/');
+						"files_csv"=>$edihist_dir.'/csv/files_era.csv', "datecolumn"=>'0', "fncolumn"=>'1', "regex"=>'/835[0-9]{5}\.835*|\.835*|\.(era|ERA)$/');
 	$p_ar['text'] = array("type"=>'text', "directory"=>$edihist_dir.'/text', "claims_csv"=>'',
 						"files_csv"=>'', "column"=>'', "regex"=>'/\.(EB)|(IB)|(DP)|(AC)|(TA)|(99)|(97)T$/i');
     
